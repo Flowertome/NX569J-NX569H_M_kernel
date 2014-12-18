@@ -2850,6 +2850,10 @@ int adreno_dispatcher_init(struct adreno_device *adreno_dev)
 	setup_timer(&dispatcher->preempt_timer, adreno_dispatcher_preempt_timer,
 		(unsigned long) adreno_dev);
 
+	/* A304 is slower than other a3xx, So it needs a larger timer */
+	if (adreno_is_a304(adreno_dev))
+		_fault_timer_interval = 400;
+
 	INIT_WORK(&dispatcher->work, adreno_dispatcher_work);
 
 	init_completion(&dispatcher->idle_gate);
