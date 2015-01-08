@@ -33,6 +33,7 @@
 #include <linux/atomic.h>
 #include <media/radio-iris-commands.h>
 
+// Vendor has already made some modifications without having to modify them again.
 #define MIN_TX_TONE_VAL  0x00
 #define MAX_TX_TONE_VAL  0x07
 #define MIN_HARD_MUTE_VAL  0x00
@@ -79,7 +80,7 @@
 #define MAX_SINR_SAMPLES  0xFF
 #define MIN_BLEND_HI  -128
 #define MAX_BLEND_HI  127
-
+// Remind by Flowertome
 
 /* ---- HCI Packet structures ---- */
 #define RADIO_HCI_COMMAND_HDR_SIZE sizeof(struct radio_hci_command_hdr)
