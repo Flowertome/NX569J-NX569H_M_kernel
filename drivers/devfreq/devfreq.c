@@ -493,7 +493,7 @@ struct devfreq *devfreq_add_device(struct device *dev,
 	devfreq->data = data;
 	devfreq->nb.notifier_call = devfreq_notifier_call;
 
-	devfreq->trans_table =	devm_kzalloc(dev, sizeof(unsigned int) *
+	devfreq->trans_table =	devm_kzalloc(dev, sizeof(unsigned long) *
 						devfreq->profile->max_state *
 						devfreq->profile->max_state,
 						GFP_KERNEL);
