@@ -30,8 +30,13 @@
 
 #ifdef CONFIG_KEXEC_HARDBOOT
 #define KEXEC_HB_PAGE_MAGIC 0x4a5db007
-// Hardboot: for Nexus 6P (Angler). Address reserved in device tree.
-#define KEXEC_HB_PAGE_ADDR UL(0x1fd00000)
+
+/* 
+  Hardboot: nubia NX569J/NX569H (Z17mini)
+  The address defined in KEXEC_HB_PAGE_ADDR is in the DTS
+  Please see: msm8976.dtsi
+ */
+#define KEXEC_HB_PAGE_ADDR UL(0x9ff00000)
 #endif
 
 #if !defined(__ASSEMBLY__)
