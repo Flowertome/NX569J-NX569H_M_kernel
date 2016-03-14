@@ -1668,6 +1668,10 @@ static inline void inc_nr_running(struct rq *rq)
 	sched_update_nr_prod(cpu_of(rq), 1, true);
 	rq->nr_running++;
 
+#if defined(CONFIG_INTELLI_PLUG) || defined(CONFIG_HIMA_HOTPLUG)
+	write_seqcount_end(&nr_stats->ave_seqcnt);
+#endif
+
 #ifdef CONFIG_NO_HZ_FULL
 	if (rq->nr_running == 2) {
 		if (tick_nohz_full_cpu(rq->cpu)) {
