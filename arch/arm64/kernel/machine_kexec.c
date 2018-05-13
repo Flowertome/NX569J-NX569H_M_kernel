@@ -27,7 +27,6 @@ extern const unsigned long relocate_new_kernel_size;
 extern unsigned long arm64_kexec_dtb_addr;
 extern unsigned long arm64_kexec_kimage_head;
 extern unsigned long arm64_kexec_kimage_start;
-
 #ifdef CONFIG_KEXEC_HARDBOOT
 extern unsigned long arm64_kexec_hardboot;
 void (*kexec_hardboot_hook)(void);
@@ -127,8 +126,9 @@ static void fill_bypass(const struct kimage *kimage)
 
 	pr_debug("%s: kernel: %016lx\n", __func__, bypass.kernel);
 	pr_debug("%s: dtb:    %016lx\n", __func__, bypass.dtb);
+}
 
- /**
+/**
  * kexec_image_info - For debugging output.
  */
 #define kexec_image_info(_i) _kexec_image_info(__func__, __LINE__, _i)
@@ -181,11 +181,9 @@ int machine_kexec_prepare(struct kimage *image)
 	arm64_kexec_kimage_start = image->start;
 		arm64_kexec_dtb_addr = 0;
 	}
-
 #ifdef CONFIG_KEXEC_HARDBOOT
 	arm64_kexec_hardboot = image->hardboot;
 #endif
-
 	// debug; please remove
 	hardboot_page = ioremap(KEXEC_HB_PAGE_ADDR, SZ_1M);
 	pr_info("Last hardboot status: %lx\n", hardboot_page[0]);
@@ -226,6 +224,7 @@ static void kexec_list_flush(unsigned long kimage_head)
 		}
 	}
 }
+
 
 /**
  * kexec_list_hardboot_create_post_reboot_list -
