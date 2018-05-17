@@ -815,11 +815,11 @@
 		compatible = "qcom,msm-thermal";
 		qcom,sensor-id = <9>;
 		qcom,poll-ms = <250>;
-		qcom,limit-temp = <60>;
-		qcom,temp-hysteresis = <10>;
-		qcom,freq-step = <2>;
-		qcom,core-limit-temp = <80>;
-		qcom,core-temp-hysteresis = <10>;
+		qcom,limit-temp = <85>;
+		qcom,temp-hysteresis = <5>;
+		qcom,freq-step = <1>;
+		qcom,core-limit-temp = <95>;
+		qcom,core-temp-hysteresis = <5>;
 		qcom,mitigation-profile-enable;
 		qcom,hotplug-temp = <105>;
 		qcom,hotplug-temp-hysteresis = <25>;
