@@ -326,7 +326,7 @@ config UKSM
 	bool "Ultra-KSM for page merging"
 	depends on KSM
 	help
-	UKSM is inspired by the Linux kernel project \u2014 KSM(Kernel Same
+	UKSM is inspired by the Linux kernel project 2014 KSM(Kernel Same
 	page Merging), but with a fundamentally rewritten core algorithm. With
 	an advanced algorithm, UKSM now can transparently scans all anonymously
 	mapped user space applications with an significantly improved scan speed
