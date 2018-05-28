@@ -97,8 +97,12 @@ enum {
 #define EAR_PMU 1
 #define SPK_PMD 2
 #define SPK_PMU 3
-
+#ifdef CONFIG_NUBIA_AUDIO_FEATURE
+#define MICBIAS_DEFAULT_VAL 2500000
+#else
 #define MICBIAS_DEFAULT_VAL 1800000
+#endif
+
 #define MICBIAS_MIN_VAL 1600000
 #define MICBIAS_STEP_SIZE 50000
 

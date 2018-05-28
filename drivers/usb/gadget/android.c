@@ -2504,7 +2504,13 @@ static int mass_storage_function_init(struct android_usb_function *f,
 		return -ENOMEM;
 	}
 
-	config->fsg.nluns = 1;
+#ifdef CONFIG_ZTEMT_USB
+    /* ZTEMT: NO ums in new nubia storage solution */
+       	config->fsg.nluns = 0;
+#else
+        config->fsg.nluns = 1;
+#endif
+
 	snprintf(name[0], MAX_LUN_NAME, "lun");
 	config->fsg.luns[0].removable = 1;
 

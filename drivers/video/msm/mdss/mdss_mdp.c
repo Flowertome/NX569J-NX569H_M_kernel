@@ -249,6 +249,9 @@ static irqreturn_t mdss_irq_handler(int irq, void *ptr)
 	mdss_mdp_hw.irq_info->irq_buzy = true;
 
 	if (intr & MDSS_INTR_MDP) {
+#ifdef CONFIG_NUBIA_LCD_PATCH_FOR_DEBUG
+		MDSS_XLOG(intr);
+#endif
 		spin_lock(&mdp_lock);
 		mdata->mdss_util->irq_dispatch(MDSS_HW_MDP, irq, ptr);
 		spin_unlock(&mdp_lock);

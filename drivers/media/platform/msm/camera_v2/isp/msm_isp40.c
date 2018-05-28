@@ -1468,7 +1468,7 @@ static void msm_vfe40_update_camif_state(struct vfe_device *vfe_dev,
 		msm_camera_io_w(0x0, vfe_dev->vfe_base + 0x30);
 		msm_camera_io_w_mb(0x81, vfe_dev->vfe_base + 0x34);
 		msm_camera_io_w_mb(0x1, vfe_dev->vfe_base + 0x24);
-		msm_vfe40_config_irq(vfe_dev, 0x17, 0x81,
+		msm_vfe40_config_irq(vfe_dev, 0xF7, 0x81,
 				MSM_ISP_IRQ_ENABLE);
 		msm_camera_io_w_mb(0x140000, vfe_dev->vfe_base + 0x318);
 

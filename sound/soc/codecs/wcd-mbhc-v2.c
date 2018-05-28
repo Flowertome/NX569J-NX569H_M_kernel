@@ -43,10 +43,18 @@
 #define OCP_ATTEMPT 1
 #define HS_DETECT_PLUG_TIME_MS (3 * 1000)
 #define SPECIAL_HS_DETECT_TIME_MS (2 * 1000)
+#ifdef CONFIG_NUBIA_AUDIO_FEATURE
+#define MBHC_BUTTON_PRESS_THRESHOLD_MIN 800
+#else
 #define MBHC_BUTTON_PRESS_THRESHOLD_MIN 250
+#endif
 #define GND_MIC_SWAP_THRESHOLD 4
 #define WCD_FAKE_REMOVAL_MIN_PERIOD_MS 100
+#ifdef CONFIG_NUBIA_AUDIO_FEATURE
+#define HS_VREF_MIN_VAL 1300
+#else
 #define HS_VREF_MIN_VAL 1400
+#endif
 #define FW_READ_ATTEMPTS 15
 #define FW_READ_TIMEOUT 4000000
 #define FAKE_REM_RETRY_ATTEMPTS 3
@@ -243,7 +251,12 @@ static int wcd_event_notify(struct notifier_block *self, unsigned long val,
 	bool micbias2 = false;
 	bool micbias1 = false;
 	u8 fsm_en;
-
+#ifdef CONFIG_NUBIA_AUDIO_EXTERNAL_PA_AW87xx
+       if(mbhc->current_plug == MBHC_PLUG_TYPE_NONE){
+                pr_err("%s, called when open speaker, do nothing",__func__);
+		return 0;
+       }
+#endif
 	pr_debug("%s: event %s (%d)\n", __func__,
 		 wcd_mbhc_get_event_string(event), event);
 	if (mbhc->mbhc_cb->micbias_enable_status) {
@@ -589,7 +602,14 @@ static void wcd_mbhc_report_plug(struct wcd_mbhc *mbhc, int insertion,
 			 jack_type, mbhc->hph_status);
 		wcd_mbhc_jack_report(mbhc, &mbhc->headset_jack,
 				mbhc->hph_status, WCD_MBHC_JACK_MASK);
+	#ifndef CONFIG_NUBIA_AUDIO_EXTERNAL_PA_AW87xx
+		/*
+		* While headphone and speaker both working,
+		* if headphone if removed, the speaker will be turned off too
+		* Delete this line to prevent this problem
+		*/
 		wcd_mbhc_set_and_turnoff_hph_padac(mbhc);
+	#endif
 		hphrocp_off_report(mbhc, SND_JACK_OC_HPHR);
 		hphlocp_off_report(mbhc, SND_JACK_OC_HPHL);
 		mbhc->current_plug = MBHC_PLUG_TYPE_NONE;
@@ -656,13 +676,19 @@ static void wcd_mbhc_report_plug(struct wcd_mbhc *mbhc, int insertion,
 			mbhc->current_plug = MBHC_PLUG_TYPE_HEADSET;
 			mbhc->jiffies_atreport = jiffies;
 		} else if (jack_type == SND_JACK_LINEOUT) {
+#ifdef CONFIG_NUBIA_AUDIO_FEATURE
+			mbhc->current_plug = MBHC_PLUG_TYPE_HEADSET;
+#else
 			mbhc->current_plug = MBHC_PLUG_TYPE_HIGH_HPH;
+#endif
 		} else if (jack_type == SND_JACK_ANC_HEADPHONE)
 			mbhc->current_plug = MBHC_PLUG_TYPE_ANC_HEADPHONE;
 
 		if (mbhc->impedance_detect &&
 			mbhc->mbhc_cb->compute_impedance &&
 			(mbhc->mbhc_cfg->linein_th != 0)) {
+#ifdef CONFIG_NUBIA_AUDIO_FEATURE
+#else
 				mbhc->mbhc_cb->compute_impedance(mbhc,
 						&mbhc->zl, &mbhc->zr);
 			if ((mbhc->zl > mbhc->mbhc_cfg->linein_th &&
@@ -684,6 +710,7 @@ static void wcd_mbhc_report_plug(struct wcd_mbhc *mbhc, int insertion,
 				pr_debug("%s: Marking jack type as SND_JACK_LINEOUT\n",
 				__func__);
 			}
+#endif
 		}
 
 		mbhc->hph_status |= jack_type;
@@ -903,8 +930,11 @@ static int wcd_check_cross_conn(struct wcd_mbhc *mbhc)
 	/* Disable schmitt trigger and restore micbias */
 	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_ELECT_SCHMT_ISRC, reg1);
 	pr_debug("%s: leave, plug type: %d\n", __func__,  plug_type);
-
+#ifdef CONFIG_NUBIA_AUDIO_FEATURE
+       return false;
+#else
 	return (plug_type == MBHC_PLUG_TYPE_GND_MIC_SWAP) ? true : false;
+#endif
 }
 
 static bool wcd_is_special_headset(struct wcd_mbhc *mbhc)
@@ -1352,6 +1382,10 @@ correct_plug_type:
 			goto report;
 		}
 	}
+#ifdef CONFIG_NUBIA_AUDIO_FEATURE
+         if (plug_type == MBHC_PLUG_TYPE_HIGH_HPH)
+                 plug_type = MBHC_PLUG_TYPE_HEADSET;
+#endif
 
 report:
 	if (wcd_swch_level_remove(mbhc)) {
@@ -1907,7 +1941,11 @@ static irqreturn_t wcd_mbhc_btn_press_handler(int irq, void *data)
 	mbhc->buttons_pressed |= mask;
 	mbhc->mbhc_cb->lock_sleep(mbhc, true);
 	if (schedule_delayed_work(&mbhc->mbhc_btn_dwork,
+#ifdef CONFIG_NUBIA_AUDIO_FEATURE
+				msecs_to_jiffies(800)) == 0) {
+#else
 				msecs_to_jiffies(400)) == 0) {
+#endif
 		WARN(1, "Button pressed twice without release event\n");
 		mbhc->mbhc_cb->lock_sleep(mbhc, false);
 	}
@@ -2063,12 +2101,17 @@ static int wcd_mbhc_initialise(struct wcd_mbhc *mbhc)
 		mbhc->mbhc_cb->mbhc_gnd_det_ctrl(codec, true);
 	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_HS_L_DET_PULL_UP_COMP_CTRL, 1);
 	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_L_DET_EN, 1);
-
+#ifdef CONFIG_NUBIA_AUDIO_FEATURE
+	/* Insertion debounce set to 96ms */
+	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_INSREM_DBNC, 6);
+	/* Button Debounce set to 32ms */
+	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_BTN_DBNC, 3);
+#else
 	/* Insertion debounce set to 96ms */
 	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_INSREM_DBNC, 6);
 	/* Button Debounce set to 16ms */
 	WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_BTN_DBNC, 2);
-
+#endif
 	/* Enable micbias ramp */
 	if (mbhc->mbhc_cb->mbhc_micb_ramp_control)
 		mbhc->mbhc_cb->mbhc_micb_ramp_control(codec, true);

@@ -1489,7 +1489,7 @@ void msm_vfe47_update_camif_state(struct vfe_device *vfe_dev,
 		msm_camera_io_w(0x0, vfe_dev->vfe_base + 0x64);
 		msm_camera_io_w(0x81, vfe_dev->vfe_base + 0x68);
 		msm_camera_io_w(0x1, vfe_dev->vfe_base + 0x58);
-		msm_vfe47_config_irq(vfe_dev, 0x17, 0x81,
+		msm_vfe47_config_irq(vfe_dev, 0x15, 0x81,
 					MSM_ISP_IRQ_ENABLE);
 
 		if ((vfe_dev->hvx_cmd > HVX_DISABLE) &&
