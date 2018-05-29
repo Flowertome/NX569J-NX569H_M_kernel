@@ -1680,6 +1680,7 @@ static inline void inc_nr_running(struct rq *rq)
 		if (!rq->rd->overload)
 		rq->rd->overload = true;
 #endif
+}
 
 #ifdef CONFIG_NO_HZ_FULL
 		if (tick_nohz_full_cpu(rq->cpu)) {
